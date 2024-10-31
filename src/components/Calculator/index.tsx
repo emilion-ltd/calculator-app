@@ -1,39 +1,56 @@
 'use client';
 
 import { useState } from 'react';
+import Introduction from './Introduction';
 import GradeCalculator from './GradeCalculator';
 import ScoreCalculator from './ScoreCalculator';
-import { CalculatorType } from 'calculator-app/src/types';
 
 export default function Calculator() {
-  const [calculatorType, setCalculatorType] = useState<CalculatorType>('grade');
+  const [step, setStep] = useState(1);
+  const [gradeAverage, setGradeAverage] = useState<number>(0);
+  const [calculatorType, setCalculatorType] = useState<'full' | 'score-only'>('full');
+
+  const handleStart = (type: 'full' | 'score-only') => {
+    setCalculatorType(type);
+    setStep(type === 'full' ? 2 : 3);
+  };
+
+  const handleNext = (average: number) => {
+    setGradeAverage(average);
+    setStep(3);
+  };
 
   return (
     <div className="bg-white rounded-lg shadow-lg p-6">
-      <div className="flex justify-center space-x-4 mb-6 rtl:space-x-reverse">
-        <button
-          className={`px-4 py-2 rounded-md ${
-            calculatorType === 'grade'
-              ? 'bg-blue-600 text-white'
-              : 'bg-gray-200 text-gray-700'
-          }`}
-          onClick={() => setCalculatorType('grade')}
-        >
-          מחשבון בגרות
-        </button>
-        <button
-          className={`px-4 py-2 rounded-md ${
-            calculatorType === 'score'
-              ? 'bg-blue-600 text-white'
-              : 'bg-gray-200 text-gray-700'
-          }`}
-          onClick={() => setCalculatorType('score')}
-        >
-          מחשבון סכם
-        </button>
-      </div>
-
-      {calculatorType === 'grade' ? <GradeCalculator /> : <ScoreCalculator />}
+      {step === 1 && (
+        <div className="space-y-6 text-center">
+          <h1 className="text-2xl font-bold">ברוכים הבאים למחשבון הסכם</h1>
+          <p className="text-lg mb-8">
+            בחר את סוג החישוב הרצוי
+          </p>
+          <div className="flex justify-center gap-4">
+            <button
+              onClick={() => handleStart('full')}
+              className="bg-blue-500 text-white px-6 py-3 rounded-md hover:bg-blue-600"
+            >
+              חישוב מלא (כולל בגרויות)
+            </button>
+            <button
+              onClick={() => handleStart('score-only')}
+              className="bg-green-500 text-white px-6 py-3 rounded-md hover:bg-green-600"
+            >
+              חישוב סכם בלבד
+            </button>
+          </div>
+        </div>
+      )}
+      {step === 2 && <GradeCalculator onNext={handleNext} />}
+      {step === 3 && (
+        <ScoreCalculator 
+          gradeAverage={gradeAverage} 
+          isScoreOnly={calculatorType === 'score-only'}
+        />
+      )}
     </div>
   );
 } 

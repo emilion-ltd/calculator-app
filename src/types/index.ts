@@ -11,8 +11,12 @@ export interface Subject {
 export interface University {
   id: string;
   name: string;
-  bonusLink: string;
-  logo: string;
+  logo?: string;
+  bonusLink?: string;
+  weights: {
+    grade: number;
+    psychometric: number;
+  };
   bonusRules: {
     [key: string]: {
       units: number;

@@ -33,15 +33,11 @@ export const universities: University[] = [
     id: 'tau',
     name: 'אוניברסיטת תל אביב',
     weights: { grade: 0.5, psychometric: 0.5 },
+    bonusRules: {
+      'תנ"ך': [{ units: 5, bonus: 25 }],
+      // Add other subjects and their bonus rules
+    },
+    // Add other properties like logo and bonusLink if needed
   },
-  {
-    id: 'huji',
-    name: 'האוניברסיטה העברית',
-    weights: { grade: 0.4, psychometric: 0.6 },
-  },
-  {
-    id: 'technion',
-    name: 'הטכניון',
-    weights: { grade: 0.3, psychometric: 0.7 },
-  },
+  // Add other universities
 ]; 
