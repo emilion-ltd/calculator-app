@@ -6,6 +6,7 @@ import SubjectTable from './SubjectTable';
 import { calculateGradeAverage } from '@/lib/calculations';
 import { universities } from '@/data/universities';
 import { DefaultUniversityIcon } from '../UniversityIcon';
+import Image from 'next/image';
 
 const defaultSubjects: Subject[] = [
   { id: '1', name: 'תנ"ך', grade: 0, units: 2, isDefault: true },
@@ -17,7 +18,7 @@ const defaultSubjects: Subject[] = [
   { id: '7', name: 'מתמטיקה', grade: 0, units: 5, isDefault: true },
 ];
 
-export default function GradeCalculator() {
+export default function GradeCalculator({ onNext }: { onNext: (average: number) => void }) {
   const [selectedUniversity, setSelectedUniversity] = useState(universities[0]);
   const [subjects, setSubjects] = useState<Subject[]>(defaultSubjects);
 
@@ -74,19 +75,11 @@ export default function GradeCalculator() {
         <div className="mt-2 flex items-center justify-between">
           <div className="h-12 w-24 relative flex items-center justify-center">
             {selectedUniversity.logo ? (
-              <img
+              <Image
                 src={selectedUniversity.logo}
                 alt={`לוגו ${selectedUniversity.name}`}
-                className="h-full w-full object-contain"
-                onError={(e) => {
-                  const target = e.target as HTMLImageElement;
-                  target.style.display = 'none';
-                  target.parentElement?.appendChild(
-                    document.createElement('div')
-                  ).appendChild(
-                    document.createTextNode(selectedUniversity.name[0])
-                  );
-                }}
+                layout="fill"
+                objectFit="contain"
               />
             ) : (
               <DefaultUniversityIcon />
@@ -122,6 +115,13 @@ export default function GradeCalculator() {
           סה&quot;כ יח&quot;ל לחישוב: {filledUnits}/{totalUnits} | ממוצע בגרות מיטבי: {average.toFixed(2)}
         </h3>
       </div>
+
+      <button
+        onClick={() => onNext(average)}
+        className="w-full bg-green-500 text-white px-4 py-3 rounded-md hover:bg-green-600"
+      >
+        המשך
+      </button>
     </div>
   );
 } 

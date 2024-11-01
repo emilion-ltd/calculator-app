@@ -11,24 +11,96 @@ interface HistoryEntry {
   year: number;
 }
 
-export default function ScoreCalculator() {
+interface ScoreCalculatorProps {
+  gradeAverage: number;
+  isScoreOnly?: boolean;
+}
+
+export default function ScoreCalculator({ gradeAverage, isScoreOnly = false }: ScoreCalculatorProps) {
   const [scoreType, setScoreType] = useState<ScoreType>('final');
-  const [gradeAverage, setGradeAverage] = useState<number>(0);
   const [psychometric, setPsychometric] = useState<number>(0);
   const [selectedUniversity, setSelectedUniversity] = useState<University>(universities[0]);
   const [score, setScore] = useState<number>(0);
-  const [history] = useState<HistoryEntry[]>([
-    { score: 717.02, year: 2024 },
-    { score: 726.58, year: 2023 },
-    { score: 730.09, year: 2022 },
-    { score: 733.17, year: 2021 },
-    { score: 726.85, year: 2020 },
-  ]);
+  const [localGradeAverage, setLocalGradeAverage] = useState<number>(gradeAverage);
 
-  const calculateFinalScore = () => {
-    const calculated = calculateScore(gradeAverage, psychometric, selectedUniversity);
+  const getHistoryByUniversity = (universityId: string): HistoryEntry[] => {
+    switch (universityId) {
+      case 'tau':
+        return [
+          { score: 742.81, year: 2024 },
+          { score: 744.3, year: 2023 },
+          { score: 746.07, year: 2022 },
+          { score: 746.41, year: 2021 },
+          { score: 740.93, year: 2020 },
+          { score: 739.62, year: 2019 },
+          { score: 740.15, year: 2018 },
+          { score: 738.86, year: 2017 },
+          { score: 733.89, year: 2016 },
+        ];
+      case 'huji':
+        return [
+          // Add HUJI history data here
+        ];
+      case 'technion':
+        return [
+          // Add Technion history data here
+        ];
+      case 'bgu':
+        return [
+          // Add BGU history data here
+        ];
+      case 'biu':
+        return [
+          // Add BIU history data here
+        ];
+      default:
+        return [];
+    }
+  };
+
+  const history = getHistoryByUniversity(selectedUniversity.id);
+
+  const calculateFinalScore = (average: number) => {
+    const calculated = calculateScore(average, psychometric, selectedUniversity);
     setScore(calculated);
   };
+
+  const getScoreRanges = (university: University) => {
+    switch (university.id) {
+      case 'tau':
+        return {
+          gradeRange: scoreType === 'final' ? '(40 - 117)' : '(?)',
+          psychometricRange: scoreType === 'final' ? '(700 - 800)' : '(150 - 250)'
+        };
+      case 'huji':
+        return {
+          gradeRange: scoreType === 'final' ? '(60 - 127)' : '(16 - 30)',
+          psychometricRange: scoreType === 'final' ? '(700 - 800)' : '(150 - 250)'
+        };
+      case 'technion':
+        return {
+          gradeRange: scoreType === 'final' ? '(0 - 119)' : '(150 - 250)',
+          psychometricRange: scoreType === 'final' ? '(800 - 800)' : '(150 - 250)'
+        };
+      case 'bgu':
+        return {
+          gradeRange: scoreType === 'final' ? '(0 - 120)' : '(150 - 250)',
+          psychometricRange: scoreType === 'final' ? '(680 - 800)' : '(150 - 250)'
+        };
+      case 'biu':
+        return {
+          gradeRange: scoreType === 'final' ? '(101 - 126)' : '(150 - 250)',
+          psychometricRange: scoreType === 'final' ? '(680 - 800)' : '(150 - 250)'
+        };
+      default:
+        return {
+          gradeRange: '(40 - 117)',
+          psychometricRange: '(200 - 800)'
+        };
+    }
+  };
+
+  const ranges = getScoreRanges(selectedUniversity);
 
   return (
     <div className="space-y-6">
@@ -48,7 +120,7 @@ export default function ScoreCalculator() {
           onClick={() => setScoreType('initial')}
           className={`px-6 py-2 rounded-full ${
             scoreType === 'initial'
-              ? 'bg-green-500 text-white'
+              ? 'bg-red-500 text-white'
               : 'bg-gray-200 text-gray-700'
           }`}
         >
@@ -59,31 +131,28 @@ export default function ScoreCalculator() {
       <div className="grid grid-cols-1 gap-4">
         <div>
           <label className="block text-sm font-medium text-gray-700 text-right">
-            ממוצע בגרות (117 - 40)
+            {scoreType === 'final' ? 'ממוצע בגרות' : 'סכם קומבינטורי'} {ranges.gradeRange}
           </label>
           <input
             type="number"
-            value={gradeAverage}
-            onChange={(e) => setGradeAverage(Number(e.target.value))}
+            value={isScoreOnly ? localGradeAverage : gradeAverage}
+            onChange={(e) => isScoreOnly && setLocalGradeAverage(Number(e.target.value))}
             className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 text-right"
-            min="40"
-            max="117"
-            placeholder="הכנס ממוצע בגרות"
+            placeholder={`הכנס ${scoreType === 'final' ? 'ממוצע בגרות' : 'סכם קומבינטורי'}`}
+            readOnly={!isScoreOnly}
           />
         </div>
 
         <div>
           <label className="block text-sm font-medium text-gray-700 text-right">
-            ציון פסיכומטרי (800 - 200)
+            {scoreType === 'final' ? 'ציון פסיכומטרי' : 'מרק'} {ranges.psychometricRange}
           </label>
           <input
             type="number"
             value={psychometric}
             onChange={(e) => setPsychometric(Number(e.target.value))}
             className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 text-right"
-            min="200"
-            max="800"
-            placeholder="הכנס ציון פסיכומטרי"
+            placeholder={`הכנס ${scoreType === 'final' ? 'ציון פסיכומטרי' : 'מרק'}`}
           />
         </div>
 
@@ -109,13 +178,12 @@ export default function ScoreCalculator() {
       </div>
 
       <button
-        onClick={calculateFinalScore}
-        className="w-full bg-green-500 text-white px-4 py-3 rounded-md hover:bg-green-600 flex items-center justify-center gap-2"
+        onClick={() => calculateFinalScore(isScoreOnly ? localGradeAverage : gradeAverage)}
+        className={`w-full ${
+          scoreType === 'final' ? 'bg-green-500 hover:bg-green-600' : 'bg-red-500 hover:bg-red-600'
+        } text-white px-4 py-3 rounded-md flex items-center justify-center gap-2`}
       >
-        <span>חישוב סכם</span>
-        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-          <path fillRule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-        </svg>
+        <span>בדוק עמידה בתנאים</span>
       </button>
 
       <div className="mt-6 p-4 bg-blue-50 rounded-md">
@@ -135,7 +203,7 @@ export default function ScoreCalculator() {
                   שנה
                 </th>
                 <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">
-                  סכם סופי
+                  סכם {scoreType === 'final' ? 'סופי' : 'ראשוני'}
                 </th>
               </tr>
             </thead>
