@@ -1,4 +1,4 @@
-import '../src/styles/styles.css';
+import '../styles/styles.css';
 import type { AppProps } from 'next/app';
 
 function MyApp({ Component, pageProps }: AppProps) {
