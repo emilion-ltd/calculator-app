@@ -2,7 +2,8 @@
 
 import React, { useState } from 'react';
 import { University } from '@/types';
-import { calculateScore, universities } from '@/lib/calculations';
+import { calculateScore } from '@/lib/calculations';
+import { universities } from '@/data/universities';
 
 type ScoreType = 'final' | 'initial';
 
@@ -13,13 +14,14 @@ interface HistoryEntry {
 
 interface ScoreCalculatorProps {
   gradeAverage: number;
+  selectedUniversity: University;
   isScoreOnly?: boolean;
 }
 
-export default function ScoreCalculator({ gradeAverage, isScoreOnly = false }: ScoreCalculatorProps) {
+export default function ScoreCalculator({ gradeAverage, selectedUniversity, isScoreOnly = false }: ScoreCalculatorProps) {
   const [scoreType, setScoreType] = useState<ScoreType>('final');
   const [psychometric, setPsychometric] = useState<number>(0);
-  const [selectedUniversity, setSelectedUniversity] = useState<University>(universities[0]);
+  const [localSelectedUniversity, setLocalSelectedUniversity] = useState<University>(selectedUniversity);
   const [score, setScore] = useState<number>(0);
   const [localGradeAverage, setLocalGradeAverage] = useState<number>(gradeAverage);
 
@@ -39,29 +41,61 @@ export default function ScoreCalculator({ gradeAverage, isScoreOnly = false }: S
         ];
       case 'huji':
         return [
-          // Add HUJI history data here
+          { score: 742.81, year: 2024 },
+          { score: 744.3, year: 2023 },
+          { score: 746.07, year: 2022 },
+          { score: 746.41, year: 2021 },
+          { score: 740.93, year: 2020 },
+          { score: 739.62, year: 2019 },
+          { score: 740.15, year: 2018 },
+          { score: 738.86, year: 2017 },
+          { score: 733.89, year: 2016 },
         ];
       case 'technion':
         return [
-          // Add Technion history data here
+          { score: 742.81, year: 2024 },
+          { score: 744.3, year: 2023 },
+          { score: 746.07, year: 2022 },
+          { score: 746.41, year: 2021 },
+          { score: 740.93, year: 2020 },
+          { score: 739.62, year: 2019 },
+          { score: 740.15, year: 2018 },
+          { score: 738.86, year: 2017 },
+          { score: 733.89, year: 2016 },
         ];
       case 'bgu':
         return [
-          // Add BGU history data here
+          { score: 742.81, year: 2024 },
+          { score: 744.3, year: 2023 },
+          { score: 746.07, year: 2022 },
+          { score: 746.41, year: 2021 },
+          { score: 740.93, year: 2020 },
+          { score: 739.62, year: 2019 },
+          { score: 740.15, year: 2018 },
+          { score: 738.86, year: 2017 },
+          { score: 733.89, year: 2016 },
         ];
       case 'biu':
         return [
-          // Add BIU history data here
+          { score: 742.81, year: 2024 },
+          { score: 744.3, year: 2023 },
+          { score: 746.07, year: 2022 },
+          { score: 746.41, year: 2021 },
+          { score: 740.93, year: 2020 },
+          { score: 739.62, year: 2019 },
+          { score: 740.15, year: 2018 },
+          { score: 738.86, year: 2017 },
+          { score: 733.89, year: 2016 },
         ];
       default:
         return [];
     }
   };
 
-  const history = getHistoryByUniversity(selectedUniversity.id);
+  const history = getHistoryByUniversity(localSelectedUniversity.id);
 
   const calculateFinalScore = (average: number) => {
-    const calculated = calculateScore(average, psychometric, selectedUniversity);
+    const calculated = calculateScore(average, psychometric, localSelectedUniversity);
     setScore(calculated);
   };
 
@@ -69,8 +103,8 @@ export default function ScoreCalculator({ gradeAverage, isScoreOnly = false }: S
     switch (university.id) {
       case 'tau':
         return {
-          gradeRange: scoreType === 'final' ? '(40 - 117)' : '(?)',
-          psychometricRange: scoreType === 'final' ? '(700 - 800)' : '(150 - 250)'
+          gradeRange: scoreType === 'final' ? '(40 - 117)' : '(40 - 117)',
+          psychometricRange: scoreType === 'final' ? '(700 - 800)' : '(700 - 800)'
         };
       case 'huji':
         return {
@@ -80,7 +114,7 @@ export default function ScoreCalculator({ gradeAverage, isScoreOnly = false }: S
       case 'technion':
         return {
           gradeRange: scoreType === 'final' ? '(0 - 119)' : '(150 - 250)',
-          psychometricRange: scoreType === 'final' ? '(800 - 800)' : '(150 - 250)'
+          psychometricRange: scoreType === 'final' ? '(200 - 800)' : '(150 - 250)'
         };
       case 'bgu':
         return {
@@ -100,7 +134,19 @@ export default function ScoreCalculator({ gradeAverage, isScoreOnly = false }: S
     }
   };
 
-  const ranges = getScoreRanges(selectedUniversity);
+  const ranges = getScoreRanges(localSelectedUniversity);
+
+  const getMinimumScore = (universityId: string): number => {
+    const history = getHistoryByUniversity(universityId);
+    // מחזיר את הסכם של 2024 (הערך הראשון במערך)
+    return history.length > 0 ? history[0].score : 0;
+  };
+
+  const getScoreStatus = (currentScore: number, minimumScore: number): string => {
+    return currentScore >= minimumScore ? 
+      "עובר סף מינימלי" : 
+      "לא עובר סף מינימלי";
+  };
 
   return (
     <div className="space-y-6">
@@ -161,10 +207,13 @@ export default function ScoreCalculator({ gradeAverage, isScoreOnly = false }: S
             מוסד לימודים
           </label>
           <select
-            value={selectedUniversity.id}
+            value={localSelectedUniversity.id}
             onChange={(e) => {
               const university = universities.find(u => u.id === e.target.value);
-              if (university) setSelectedUniversity(university);
+              if (university) {
+                setLocalSelectedUniversity(university);
+                console.log('Selected university:', university);
+              }
             }}
             className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 text-right"
           >
@@ -187,8 +236,11 @@ export default function ScoreCalculator({ gradeAverage, isScoreOnly = false }: S
       </button>
 
       <div className="mt-6 p-4 bg-blue-50 rounded-md">
-        <h3 className="text-xl font-bold text-blue-900">
-          סכם: {score.toFixed(2)}
+        <h3 className="text-xl font-bold text-blue-900 flex justify-between items-center">
+          <span>סכם: {score.toFixed(2)}</span>
+          <span className={`text-lg ${score >= getMinimumScore(localSelectedUniversity.id) ? 'text-green-600' : 'text-red-600'}`}>
+            {getScoreStatus(score, getMinimumScore(localSelectedUniversity.id))}
+          </span>
         </h3>
       </div>
 

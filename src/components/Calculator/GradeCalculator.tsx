@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Subject } from '@/types';
+import { Subject, University } from '@/types';
 import SubjectTable from './SubjectTable';
 import { calculateGradeAverage } from '@/lib/calculations';
 import { universities } from '@/data/universities';
@@ -18,7 +18,7 @@ const defaultSubjects: Subject[] = [
   { id: '7', name: 'מתמטיקה', grade: 0, units: 5, isDefault: true },
 ];
 
-export default function GradeCalculator({ onNext }: { onNext: (average: number) => void }) {
+export default function GradeCalculator({ onNext }: { onNext: (average: number, university: University) => void }) {
   const [selectedUniversity, setSelectedUniversity] = useState(universities[0]);
   const [subjects, setSubjects] = useState<Subject[]>(defaultSubjects);
 
@@ -117,7 +117,7 @@ export default function GradeCalculator({ onNext }: { onNext: (average: number) 
       </div>
 
       <button
-        onClick={() => onNext(average)}
+        onClick={() => onNext(average, selectedUniversity)}
         className="w-full bg-green-500 text-white px-4 py-3 rounded-md hover:bg-green-600"
       >
         המשך

@@ -4,20 +4,25 @@ import { useState } from 'react';
 import Introduction from './Introduction';
 import GradeCalculator from './GradeCalculator';
 import ScoreCalculator from './ScoreCalculator';
+import { universities } from '@/data/universities';
+import { University } from '@/types';
 
 export default function Calculator() {
   const [step, setStep] = useState(1);
   const [gradeAverage, setGradeAverage] = useState<number>(0);
   const [calculatorType, setCalculatorType] = useState<'full' | 'score-only'>('full');
+  const [selectedUniversity, setSelectedUniversity] = useState<University>(universities[0]);
 
   const handleStart = (type: 'full' | 'score-only') => {
     setCalculatorType(type);
     setStep(type === 'full' ? 2 : 3);
   };
 
-  const handleNext = (average: number) => {
+  const handleNext = (average: number, university: University) => {
     setGradeAverage(average);
+    setSelectedUniversity(university);
     setStep(3);
+    window.scrollTo(0, 0);
   };
 
   return (
@@ -48,6 +53,7 @@ export default function Calculator() {
       {step === 3 && (
         <ScoreCalculator 
           gradeAverage={gradeAverage} 
+          selectedUniversity={selectedUniversity}
           isScoreOnly={calculatorType === 'score-only'}
         />
       )}

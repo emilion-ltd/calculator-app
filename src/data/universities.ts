@@ -1,19 +1,4 @@
-export interface University {
-  id: string;
-  name: string;
-  bonusLink: string;
-  logo: string;
-  bonusRules: {
-    [key: string]: {
-      units: number;
-      bonus: number;
-    }[];
-  };
-  weights: {
-    grade: number;
-    psychometric: number;
-  };
-}
+import { University } from '@/types';
 
 export const universities: University[] = [
   {
@@ -48,7 +33,7 @@ export const universities: University[] = [
   },
   {
     id: 'huji',
-    name: 'העברית',
+    name: 'האוניברסיטה העברית',
     weights: {
       grade: 0.6,
       psychometric: 0.4,
@@ -168,4 +153,6 @@ export const universities: University[] = [
       'תלמוד': [{ units: 5, bonus: 25 }]
     }
   }
-]; 
+];
+
+export type { University }; 
