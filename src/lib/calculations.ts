@@ -22,22 +22,14 @@ export function calculateScore(
 ): number {
   if (gradeAverage === 0 || psychometric === 0) return 0;
   
-  return (
-    gradeAverage * university.weights.grade +
-    psychometric * university.weights.psychometric
-  );
-}
-
-export const universities: University[] = [
-  {
-    id: 'tau',
-    name: 'אוניברסיטת תל אביב',
-    weights: { grade: 0.5, psychometric: 0.5 },
-    bonusRules: {
-      'תנ"ך': [{ units: 5, bonus: 25 }],
-      // Add other subjects and their bonus rules
-    },
-    // Add other properties like logo and bonusLink if needed
-  },
-  // Add other universities
-]; 
+  let finalScore = 0;
+  
+  if (university.weights.grade === 0.6 && university.weights.psychometric === 0.4) {
+    const normalizedGrade = ((gradeAverage - 40) * 600 / 77) + 200;
+    
+    finalScore = (normalizedGrade * university.weights.grade) + 
+                (psychometric * university.weights.psychometric);
+  }
+  
+  return finalScore;
+} 
